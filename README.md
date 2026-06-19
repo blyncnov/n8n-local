@@ -28,7 +28,7 @@ Docker to be on.
 ### 2. Get this project
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/blyncnov/n8n-local.git
 cd n8n-local
 ```
 

@@ -1,8 +1,10 @@
-# Local n8n (Docker + Postgres)
+# Self-hosted n8n (Docker + Postgres + Cloudflare Tunnel)
 
 Run [n8n](https://n8n.io) — a free, self-hosted workflow automation tool — on
-your own computer using Docker. It stores all your data in a PostgreSQL 18
-database. Tested on a MacBook (Apple Silicon / M1), but works on any machine
+your own computer using Docker, with all your data in a PostgreSQL 18 database.
+Keep it local-only, or go live on your own domain with a free **Cloudflare
+Tunnel** (see [CLOUDFLARE_TUNNEL.md](CLOUDFLARE_TUNNEL.md)).
+Tested on a MacBook (Apple Silicon / M1), but works on any machine
 with Docker.
 
 ## What you get

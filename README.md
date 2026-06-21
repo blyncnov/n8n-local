@@ -105,52 +105,36 @@ docker compose up -d
 
 ---
 
-## Optional: expose n8n on your own domain (Cloudflare Tunnel)
+## Optional: reach n8n on your own domain (Cloudflare Tunnel)
 
-By default n8n is local-only. If you want to reach it from anywhere at your own
-domain (for example `n8n.yourdomain.com`) — without opening any ports on your
-router — you can use a free [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
+By default n8n only runs on your own computer. If you want to open it at your own
+web address (like `n8n.yourdomain.com`) from anywhere — **without buying a server,
+renting a VPS, or opening any ports on your router** — you can use a free
+**Cloudflare Tunnel**.
 
-**1. Create the tunnel in Cloudflare**
+📖 **Full beginner walkthrough:** **[CLOUDFLARE_TUNNEL.md](CLOUDFLARE_TUNNEL.md)**
+— a complete, no-experience-needed guide that takes you from *"I don't even have a
+domain yet"* all the way to *"it's live on the internet"*, with every click
+explained.
 
-- Go to the [Cloudflare Zero Trust dashboard](https://one.dash.cloudflare.com/)
-  → **Networks → Tunnels → Create a tunnel** (type: *Cloudflared*).
-- Give it a name and copy the **tunnel token** it shows you.
-- Add a **public hostname**: your subdomain (e.g. `n8n.yourdomain.com`) →
-  service **`HTTP`** → URL **`localhost:5678`**.
-  (Your domain must already be managed by Cloudflare.)
-
-**2. Put your settings in `.env`**
+The short version once your domain is on Cloudflare and you have a tunnel token:
 
 ```env
-# Use your real domain
+# in your .env
 N8N_HOST=n8n.yourdomain.com
 N8N_PROTOCOL=https
 N8N_WEBHOOK_URL=https://n8n.yourdomain.com/
-
-# Turn the tunnel on and paste your token
 COMPOSE_PROFILES=tunnel
 CLOUDFLARE_TUNNEL_TOKEN=paste_your_tunnel_token_here
 ```
-
-**3. Start**
 
 ```bash
 docker compose up -d
 ```
 
-That's it — the `cloudflared` container starts automatically alongside n8n and
-connects to Cloudflare. Visit `https://n8n.yourdomain.com` and you're live.
-
-> 🔒 **Now that n8n is on the internet, security matters:**
-> - Use **strong** passwords (not `admin`/`change_me`).
-> - Keep your `CLOUDFLARE_TUNNEL_TOKEN` secret — it lives only in `.env`, which
->   is never committed.
-> - For an extra layer, add **Cloudflare Access** (email/PIN login in front of
->   n8n) from the same Zero Trust dashboard.
-
-To go back to local-only, just remove (or comment out) the `COMPOSE_PROFILES`
-line and run `docker compose up -d` again.
+The `cloudflared` container starts automatically with n8n and connects to
+Cloudflare. To go back to local-only, comment out the `COMPOSE_PROFILES` line and
+run `docker compose up -d` again.
 
 ---
 
@@ -171,8 +155,9 @@ line and run `docker compose up -d` again.
 
 | File                  | What it's for                                      |
 | --------------------- | -------------------------------------------------- |
-| `docker-compose.yml`  | Defines the n8n + Postgres setup                   |
+| `docker-compose.yml`  | Defines the n8n + Postgres + tunnel setup          |
 | `.env.example`        | Template for your settings — copy it to `.env`     |
+| `CLOUDFLARE_TUNNEL.md`| Step-by-step guide to put n8n on your own domain   |
 | `.env`                | Your real settings (not shared / not in git)       |
 | `.gitignore`          | Tells git to never upload your `.env`              |
 | `README.md`           | This file                                          |

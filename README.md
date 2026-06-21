@@ -9,13 +9,15 @@ with Docker.
 
 ## What you get
 
-| Service  | What it is                                         |
-| -------- | -------------------------------------------------- |
-| n8n      | The automation tool you build workflows in         |
-| postgres | The database where n8n saves everything            |
+| Service     | What it is                                                       |
+| ----------- | --------------------------------------------------------------- |
+| n8n         | The automation tool you build workflows in                      |
+| postgres    | The database where n8n saves everything                         |
+| cloudflared | *(Optional)* Puts n8n on your own domain — see the Cloudflare Tunnel section |
 
 Your workflows and data are stored in Docker volumes, so they stay safe even if
-you stop or restart the containers.
+you stop or restart the containers. The `cloudflared` service only runs if you
+turn on the tunnel — by default everything stays on your own computer.
 
 ---
 
@@ -162,4 +164,5 @@ run `docker compose up -d` again.
 | `CLOUDFLARE_TUNNEL.md`| Step-by-step guide to put n8n on your own domain   |
 | `.env`                | Your real settings (not shared / not in git)       |
 | `.gitignore`          | Tells git to never upload your `.env`              |
+| `LICENSE`             | MIT license — free for anyone to use               |
 | `README.md`           | This file                                          |

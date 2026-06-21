@@ -35,15 +35,35 @@ services:
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       GENERIC_TIMEZONE: ${TIMEZONE}
-      N8N_HOST: localhost
       N8N_PORT: 5678
-      N8N_PROTOCOL: http
-      WEBHOOK_URL: http://localhost:5678/
+      # Public URL — for local-only use these are localhost/http;
+      # with the Cloudflare Tunnel they become your domain + https.
+      N8N_HOST: ${N8N_HOST}
+      N8N_PROTOCOL: ${N8N_PROTOCOL}
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      N8N_EDITOR_BASE_URL: ${N8N_WEBHOOK_URL}
+      # n8n runs behind the Cloudflare proxy (one hop)
+      N8N_PROXY_HOPS: '1'
+      # Allow login over plain http://localhost too (avoids cookie lockout)
+      N8N_SECURE_COOKIE: 'false'
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Cloudflare Tunnel — exposes n8n at your public domain.
+  # Only starts when the "tunnel" profile is active (set COMPOSE_PROFILES=tunnel
+  # in your .env). Shares n8n's network so it reaches it at localhost:5678,
+  # matching the service URL configured in the Cloudflare dashboard.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    profiles: ['tunnel']
+    network_mode: 'service:n8n'
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - n8n
 
 volumes:
   postgres_data:

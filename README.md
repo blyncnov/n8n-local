@@ -105,10 +105,60 @@ docker compose up -d
 
 ---
 
+## Optional: expose n8n on your own domain (Cloudflare Tunnel)
+
+By default n8n is local-only. If you want to reach it from anywhere at your own
+domain (for example `n8n.yourdomain.com`) — without opening any ports on your
+router — you can use a free [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
+
+**1. Create the tunnel in Cloudflare**
+
+- Go to the [Cloudflare Zero Trust dashboard](https://one.dash.cloudflare.com/)
+  → **Networks → Tunnels → Create a tunnel** (type: *Cloudflared*).
+- Give it a name and copy the **tunnel token** it shows you.
+- Add a **public hostname**: your subdomain (e.g. `n8n.yourdomain.com`) →
+  service **`HTTP`** → URL **`localhost:5678`**.
+  (Your domain must already be managed by Cloudflare.)
+
+**2. Put your settings in `.env`**
+
+```env
+# Use your real domain
+N8N_HOST=n8n.yourdomain.com
+N8N_PROTOCOL=https
+N8N_WEBHOOK_URL=https://n8n.yourdomain.com/
+
+# Turn the tunnel on and paste your token
+COMPOSE_PROFILES=tunnel
+CLOUDFLARE_TUNNEL_TOKEN=paste_your_tunnel_token_here
+```
+
+**3. Start**
+
+```bash
+docker compose up -d
+```
+
+That's it — the `cloudflared` container starts automatically alongside n8n and
+connects to Cloudflare. Visit `https://n8n.yourdomain.com` and you're live.
+
+> 🔒 **Now that n8n is on the internet, security matters:**
+> - Use **strong** passwords (not `admin`/`change_me`).
+> - Keep your `CLOUDFLARE_TUNNEL_TOKEN` secret — it lives only in `.env`, which
+>   is never committed.
+> - For an extra layer, add **Cloudflare Access** (email/PIN login in front of
+>   n8n) from the same Zero Trust dashboard.
+
+To go back to local-only, just remove (or comment out) the `COMPOSE_PROFILES`
+line and run `docker compose up -d` again.
+
+---
+
 ## Good to know
 
-- **This is for local use.** The default settings are fine on your own computer.
-  If you ever put this on the internet, use strong passwords first.
+- **Local by default, public if you want.** The default settings run only on your
+  own computer. To reach it on your own domain, see the Cloudflare Tunnel section
+  above — and use strong passwords before doing so.
 - **Postgres version is pinned to 18 on purpose.** Don't change it to `latest` —
   the database files are tied to the version number and it could refuse to start.
 - **Changing the database password later won't work** on an existing setup —
